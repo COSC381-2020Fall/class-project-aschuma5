@@ -1,0 +1,10 @@
+video_id.txt
+download_data.txt
+.vscode
+.vscode/*
+*.vscode
+youtube_data/*
+indexdir/*
+data_for_indexing.json
+__pycache__/*
+
