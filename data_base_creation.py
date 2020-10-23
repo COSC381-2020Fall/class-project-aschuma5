@@ -1,24 +1,20 @@
-import os
-import sys
+from pathlib import Path
 import json
 
-from whoosh.index import create_in
-from whoosh.fields import Schema, TEXT, ID
-
-
-schema = Schema(id=ID(stored=True), title=TEXT(stored=True), description=TEXT(stored=True))
-
-if not os.path.exists("indexdir"):
-    os.mkdir("indexdir")
-
-ix = create_in("indexdir",schema)
-writer = ix.writer()
-
-with open("data_for_indexing.json") as f:
-    youtube_array = json.load(f)
-    for item in youtube_array:
-        writer.add_document(id=item['video id'], title=item['title'], description=item['description'])
-
-writer.commit()
-
-
+paths = [str(x) for x in Path('./youtube_data').glob('**/*.json')]
+results = []
+for path in paths:
+    with open(path, 'r') as f:
+        data = json.load(f)
+        video = data['items'][0]
+        video_id = video['id']
+        title = video['snippet']['title']
+        description = video['snippet']['description']
+        results.append({
+            'id': video_id,
+            'title': title,
+            'description': description
+            })
+    
+with open('data_for_indexing.json', 'w') as dump_file:
+    json.dump(results, dump_file)

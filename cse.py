@@ -1,23 +1,25 @@
-import pprint
 import json
+from tqdm import tqdm
 from googleapiclient.discovery import build
 import config
 
-my_api_key = config.data_keys['api_key']
-my_cse_id = config.data_keys['cse_key']
+def google_search(search_term, api_key, cse_id, **kwargs):
+    service = build("customsearch", "v1", developerKey=api_key)
+    res = service.cse().list(q=search_term, cx=cse_id, **kwargs).execute()
+    return res['items']
 
-my_search_topic = config.data_keys['my_search_topic']
+if __name__ == '__main__':
+    my_api_key = config.api_key
+    my_cse_id = config.cse_id
+    my_search_topic = config.target_topic
 
-resource = build("customsearch", 'v1', developerKey=my_api_key).cse()
+    total_page_number = config.google_search_maximum_page_number
+    results = []
 
-output = []
-
-for i in range(1, 100, 10):
-    result = resource.list(q = my_search_topic , cx=my_cse_id, start = i).execute()
-    output += result['items']
-
-
-for i in output:
-    pprint.pprint(i)
-
+    for page_number in tqdm(range(total_page_number)):
+        current_result = google_search(my_search_topic, my_api_key, my_cse_id, num=10, start=page_number*10+1)
+        results += current_result
+       
+    with open('google_search.json', 'w') as dump_file:
+        json.dump(results, dump_file)
 
