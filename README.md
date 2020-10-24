@@ -14,4 +14,4 @@ Python verion: 3.7.9
 ## Create Whoosh Indexing
 1. run `python3 create_whoosh_index.py`
 ## Query on Whoosh
-1. run `python3 query_on_whoosh.py home 2 1` will output a json-format result
+1. run `python3 query_on_whoosh.py emperor 3 1  will output a json-format result
