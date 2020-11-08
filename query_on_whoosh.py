@@ -50,4 +50,4 @@ if __name__ == "__main__":
     items_per_page = int(sys.argv[2])
     current_page = int(sys.argv[3])
     query_results, num_query_results = query(query_str, items_per_page=items_per_page, current_page=current_page)
-    print(json.dumps(query_results))
+    print(json.dumps(query_results, indent=4))
