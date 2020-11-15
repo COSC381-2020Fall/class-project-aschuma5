@@ -4,6 +4,9 @@ import config
 import query_on_whoosh
 import smtplib
 import math
+import sqlite3
+
+
 
 
 
@@ -63,21 +66,44 @@ def handle_query():
 def handle_query_view():
     query_term = request.args.get("q")
     if not query_term:
+
         query_term = ""
     #page_index = int(request.args.get("p"))
     try:
         page_index = int(request.args.get("p"))
     except:
         page_index = 1
+
+    conn = sqlite3.connect('history.db')
+    c = conn.cursor()
+    #INSERT INTO search_terms (id, term, search_time) VALUES (1, 
+    #3.131.112.93:5000/query_view?q=marine',strftime('%s', 'now'));delete from search_terms;insert into search_terms (id, term, search_time) values (1, 'garbage
+    #, strftime('%s', 'now'))"
+    #http://3.131.112.93:5000/query_view?q=mars%27,%20strftime(%27%s%27,%20%27now%27));delete%20from%20search_terms;insert%20into%20search_terms%20(id,%20term,%20search_time)%20values%20(1,%20%27garbage
+    #c.executescript(f"INSERT INTO search_terms (id, term, search_time) VALUES (1, '{query_term}', strftime('%s', 'now'));")
+    #c.execute("INSERT INTO search_terms (id, term, search_time) VALUES (?, ?, strftime('%s', 'now'));", (1, query_term))
+    c.execute("INSERT INTO search_terms(term, search_time) VALUES (?, strftime('%s', 'now'));", [query_term])
+    c.execute("SELECT * FROM search_terms;")
+    rows = c.fetchall()
+    conn.commit()
+    conn.close()
     query_results = query_on_whoosh.query(query_term, current_page=page_index)
     search_results = query_results[0]
     results_cnt = int(query_results[1])
     page_cnt = math.ceil(results_cnt / 10 )
+
+
+    return render_template("query.html", 
+                            results = search_results, 
+                            page_cnt=page_cnt,
+                            query_term=query_term,
+                            history_list=rows)
+    '''
     return render_template("query.html", 
                             results = search_results, 
                             page_cnt=page_cnt,
                             query_term=query_term)
-
+    '''
 @app.route("/about", strict_slashes=False)
 def handle_about():
     return render_template("about.html")
